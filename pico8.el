@@ -1,5 +1,11 @@
 ;; pico-8.el -- major mode for editing pico-8 cartridges -*- coding: utf-8; lexical-binding: t; -*-
 
+(defun pico-find-data1 (limit)
+  (let ((start (point)))
+    (when (re-search-forward "__lua__" limit t)
+      (set-match-data `(,(point-min) ,(match-end 0)))
+      (goto-char (match-end 0)))))
+
 (setq pico8-font-lock-keywords
       (let* ((pico-constants '("true" "false" "nil"))
              (pico-keywords '("for" "do" "end" "function" "foreach" "if" "then"))
@@ -20,12 +26,12 @@
                                                 'words))
              (pico-events-regexp (regexp-opt pico-events 'words)))
         
-        `((,pico-constants-regexp . font-lock-constant-face)
+        `((pico-find-data1 . font-lock-comment-face)
+          (,pico-constants-regexp . font-lock-constant-face)
           (,pico-functions-regexp . font-lock-function-name-face)
           (,pico-events-regexp . font-lock-builtin-face)
           (,pico-keywords-regexp . font-lock-keyword-face))))
 
-(define-derived-mode pico8-mode lua-mode "pico-8 mode"
 (define-derived-mode pico8-mode lua-mode "pico-8"
   (setq font-lock-defaults '((pico8-font-lock-keywords))))
 
